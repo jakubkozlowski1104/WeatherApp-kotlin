@@ -52,7 +52,7 @@ class CityWeatherActivity : AppCompatActivity() {
     private fun createHomeFragment(): Home {
         return Home().apply {
             arguments = Bundle().apply {
-                putString("cityName", intent.extras?.getString("cityName"))
+                putString("cityNamecheck", intent.extras?.getString("cityName"))
                 putDouble("temperature", intent.extras?.getDouble("temperature") ?: 0.0)
                 putDouble("pressure", intent.extras?.getDouble("pressure") ?: 0.0)
                 putString("description", intent.extras?.getString("description"))
