@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Home"
+        android:icon="@drawable/baseline_add_home_24"
+        android:id="@+id/home"/>
+    <item android:title="Wind"
+        android:icon="@drawable/baseline_cloud_queue_24"
+        android:id="@+id/wind"
+        />
+    <item android:title="Next week"
+        android:icon="@drawable/baseline_calendar_today_24"
+        android:id="@+id/nextDays"/>
+</menu>

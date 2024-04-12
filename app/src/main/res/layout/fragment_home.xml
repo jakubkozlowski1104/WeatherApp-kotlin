@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/teal"
+    tools:context=".Home">
+
+    <FrameLayout
+        android:id="@+id/frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center">
+
+        <TextView
+            android:id="@+id/cityNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nazwa miasta"
+            android:textSize="30dp"
+            android:layout_gravity="center"
+            android:padding="16dp"
+            android:layout_marginBottom="100dp" />
+
+        <TextView
+            android:id="@+id/temperatureTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="16dp"
+            android:text="Temperatura: 0 K"
+            android:textSize="24dp" />
+
+        <TextView
+            android:id="@+id/coordinatesTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10dp"
+            android:padding="16dp"
+            android:layout_marginTop="-240dp"
+
+            android:text="Współrzędne: 0, 0"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/timeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Czas: 00:00"
+            android:textSize="20dp"
+            android:layout_marginTop="100dp"
+            android:layout_gravity="center"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp" />
+
+        <TextView
+            android:id="@+id/pressureTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ciśnienie: 0 hPa"
+            android:textSize="20dp"
+            android:layout_marginTop="170dp"
+
+            android:layout_gravity="center"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp" />
+
+        <TextView
+            android:id="@+id/descriptionTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Opis: -"
+            android:textSize="20dp"
+            android:layout_marginTop="240dp"
+            android:layout_gravity="center"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp" />
+
+        <TextView
+            android:id="@+id/windSpeedTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Prędkość wiatru: 0 m/s"
+            android:textSize="20dp"
+            android:layout_marginTop="290dp"
+
+            android:layout_gravity="center"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp" />
+
+        <TextView
+            android:id="@+id/windDirectionTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kierunek wiatru: 0°"
+            android:layout_marginTop="350dp"
+
+            android:textSize="20dp"
+            android:layout_gravity="center"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp" />
+
+
+
+    </FrameLayout>
+
+</FrameLayout>

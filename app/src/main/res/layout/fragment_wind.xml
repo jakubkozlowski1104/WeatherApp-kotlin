@@ -1,0 +1,29 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/green"
+    tools:context=".Wind">
+
+    <TextView
+        android:id="@+id/windSpeedTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Prędkość wiatru: 0 m/s"
+        android:textSize="20dp"
+        android:layout_gravity="center"
+        android:padding="16dp"
+        android:layout_marginBottom="10dp" />
+
+    <TextView
+        android:id="@+id/windDirectionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kierunek wiatru: 0°"
+        android:layout_marginTop="100dp"
+        android:textSize="20dp"
+        android:layout_gravity="center"
+        android:padding="16dp"
+        android:layout_marginBottom="10dp" />
+
+</FrameLayout>
