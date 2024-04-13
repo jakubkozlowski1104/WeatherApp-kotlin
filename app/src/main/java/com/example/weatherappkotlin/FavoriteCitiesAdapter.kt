@@ -2,7 +2,10 @@ package com.example.weatherappkotlin
 
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,7 +36,7 @@ class FavoriteCitiesAdapter(
     inner class CityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val cityNameTextView: TextView = itemView.findViewById(R.id.cityNameTextView)
         private val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
-
+        private val seeMoreButton: Button = itemView.findViewById(R.id.btnSeeMore)
         fun bind(cityName: String) {
             cityNameTextView.text = cityName
             deleteButton.setOnClickListener {
@@ -48,6 +51,23 @@ class FavoriteCitiesAdapter(
                 citiesList.remove(cityName)
                 notifyDataSetChanged()
             }
+
+            seeMoreButton.setOnClickListener {
+                val sharedPreferences = itemView.context.getSharedPreferences("CityWeatherPrefs", Context.MODE_PRIVATE)
+
+                // Zapisz nazwę miasta do SharedPreferences
+                val editor = sharedPreferences.edit()
+                editor.putString("cityName", cityName)
+                editor.apply()
+
+                // Uruchomienie CityWeatherActivity z przekazaniem nazwy miasta
+                val intent = Intent(itemView.context, CityWeatherActivity::class.java)
+                intent.putExtra("cityName", cityName)
+                itemView.context.startActivity(intent)
+            }
+
         }
+
+
     }
 }

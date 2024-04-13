@@ -67,6 +67,7 @@ class Home : Fragment() {
 
 
     private fun fetchWeatherData(cityName: String) {
+        Log.d("FavoriteCitiesAdapterCheck", "Miasto w fechu: $cityName")
         val apiKey = "54115490ba2f3c3c704b01a9e52dad7a"
         val url = "https://api.openweathermap.org/data/2.5/weather?q=$cityName&appid=$apiKey"
 

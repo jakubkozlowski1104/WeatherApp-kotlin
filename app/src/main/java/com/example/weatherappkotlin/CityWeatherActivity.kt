@@ -17,7 +17,6 @@ class CityWeatherActivity : AppCompatActivity() {
         binding = ActivityCityWeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         val defaultFragment = Home()
         replaceFragment(defaultFragment)
 
