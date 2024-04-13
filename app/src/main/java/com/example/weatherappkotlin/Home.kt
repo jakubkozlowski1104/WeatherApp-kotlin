@@ -62,7 +62,7 @@ class Home : Fragment() {
 
         // Zapisanie zaktualizowanej listy do SharedPreferences
         editor?.putStringSet("favoriteCities", favoriteCities)?.apply()
-        Log.d("FavoriteCities", "Ulubione miasta: $favoriteCities")
+        Log.d("FavoriteCitiesXD", "Ulubione miasta: $favoriteCities")
     }
 
 
