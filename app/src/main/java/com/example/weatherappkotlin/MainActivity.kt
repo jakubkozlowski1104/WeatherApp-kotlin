@@ -1,12 +1,11 @@
 package com.example.weatherappkotlin
-
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Observer
 import com.example.weatherappkotlin.databinding.ActivityMainBinding
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -15,28 +14,28 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
-import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityMainBinding
+    private lateinit var networkConnection: NetworkConnection
+    private lateinit var networkConnectionObserver: Observer<Boolean>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-    val networkConnection = NetworkConnection(applicationContext)
-        networkConnection.observe(this){
-            if(it) {
-                Toast.makeText(this, "connected", Toast.LENGTH_SHORT).show()
-            } else  {
-                Toast.makeText(this, "not connected", Toast.LENGTH_SHORT).show()
-
+        networkConnection = NetworkConnection(this)
+        networkConnectionObserver = Observer { isConnected ->
+            if (isConnected) {
+                updateInternetStatus("Connected")
+            } else {
+                updateInternetStatus("No Connection")
             }
         }
+
+        networkConnection.observe(this, networkConnectionObserver)
 
         val sharedPreferences = getSharedPreferences("FavoriteCitiesPrefs", Context.MODE_PRIVATE)
         val favoriteCitiesSet = sharedPreferences.getStringSet("favoriteCities", HashSet()) ?: HashSet()
@@ -55,7 +54,16 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this@MainActivity, FavouritesCitiesActivity::class.java)
             startActivity(intent) // Uruchomienie FavouritesCitiesActivity
         }
+    }
 
+    override fun onResume() {
+        super.onResume()
+        // Ponownie zarejestruj obserwatora dla networkConnection w onResume()
+        networkConnection.observe(this, networkConnectionObserver)
+    }
+
+    private fun updateInternetStatus(status: String) {
+        binding.textInternetStatus.text = "Internet: $status"
     }
 
     private fun fetchWeatherData(cityName: String) {
@@ -106,6 +114,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    override fun onStop() {
+        super.onStop()
+        networkConnection.removeObserver(networkConnectionObserver)
     }
 }
 
