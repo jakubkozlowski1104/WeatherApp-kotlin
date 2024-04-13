@@ -1,14 +1,15 @@
-package com.example.weatherappkotlin
-
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
-import com.example.weatherappkotlin.WeatherViewModel
+import androidx.fragment.app.Fragment
 import com.example.weatherappkotlin.databinding.FragmentHomeBinding
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import okhttp3.*
+import java.io.IOException
 
 class Home : Fragment() {
     private lateinit var binding: FragmentHomeBinding
@@ -19,47 +20,61 @@ class Home : Fragment() {
     ): View? {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        val cityName = arguments?.getString("cityName")
-        val temperature = arguments?.getDouble("temperature")
-        val coordinates = arguments?.getString("coordinates")
-        val time = arguments?.getString("time")
-        val pressure = arguments?.getDouble("pressure")
-        val description = arguments?.getString("description")
-        val windSpeed = arguments?.getDouble("windSpeed")
-        val windDirection = arguments?.getDouble("windDirection")
+        val sharedPreferences = activity?.getSharedPreferences("CityWeatherPrefs", Context.MODE_PRIVATE)
+        val cityName = sharedPreferences?.getString("cityName", "") ?: ""
+        Log.d("HomeFragmentCheck", "Odczytano nazwę miasta: $cityName")
 
-        arguments?.let {
-            // ...
-            Log.d("HomeFragment", "Temperatura: ${it.getDouble("temperature")}")
-            Log.d("HomeFragment", "Ciśnienie: ${it.getDouble("pressure")}")
-            // Dodaj logi dla innych danych, jeśli potrzebujesz
-        }
-
-        cityName?.let {
-            binding.cityNameTextView.text = it
-        }
-        temperature?.let {
-            binding.temperatureTextView.text = "$it K"
-        }
-        coordinates?.let {
-            binding.coordinatesTextView.text = "Współrzędne: $it"
-        }
-        time?.let {
-            binding.timeTextView.text = "Czas: $it"
-        }
-        pressure?.let {
-            binding.pressureTextView.text = "Ciśnienie: $it hPa"
-        }
-        description?.let {
-            binding.descriptionTextView.text = "Opis: $it"
-        }
-        windSpeed?.let {
-            binding.windSpeedTextView.text = "Prędkość wiatru: $it m/s"
-        }
-        windDirection?.let {
-            binding.windDirectionTextView.text = "Kierunek wiatru: $it°"
+        if (cityName.isNotEmpty()) {
+            fetchWeatherData(cityName)
         }
 
         return binding.root
+    }
+
+    private fun fetchWeatherData(cityName: String) {
+        val apiKey = "54115490ba2f3c3c704b01a9e52dad7a"
+        val url = "https://api.openweathermap.org/data/2.5/weather?q=$cityName&appid=$apiKey"
+
+        val client = OkHttpClient()
+        val request = Request.Builder().url(url).build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                requireActivity().runOnUiThread {
+                    Log.d("HomeFragment", "Błąd pobierania danych: ${e.message}")
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    val gson = Gson()
+                    val jsonObject = gson.fromJson(response.body?.string(), JsonObject::class.java)
+
+                    val temperature = jsonObject.getAsJsonObject("main").get("temp").asDouble
+                    val temperatureCelsius = temperature - 273.15
+                    val pressure = jsonObject.getAsJsonObject("main").get("pressure").asDouble
+                    val description = jsonObject.getAsJsonArray("weather").get(0).asJsonObject.get("description").asString
+                    val lon = jsonObject.get("coord").asJsonObject.get("lon").asDouble
+                    val lat = jsonObject.get("coord").asJsonObject.get("lat").asDouble
+                    val windSpeed = jsonObject.getAsJsonObject("wind").get("speed").asDouble
+                    val windDirection = jsonObject.getAsJsonObject("wind").get("deg").asDouble
+
+                    requireActivity().runOnUiThread {
+                        binding.cityNameTextView.text = cityName
+                        binding.temperatureTextView.text = "$temperatureCelsius °C"
+                        binding.coordinatesTextView.text = "Współrzędne: $lat, $lon"
+                        binding.pressureTextView.text = "Ciśnienie: $pressure hPa"
+                        binding.descriptionTextView.text = "Opis: $description"
+                        binding.windSpeedTextView.text = "Prędkość wiatru: $windSpeed m/s"
+                        binding.windDirectionTextView.text = "Kierunek wiatru: $windDirection°"
+                    }
+                } else {
+                    requireActivity().runOnUiThread {
+                        Log.d("HomeFragment", "Błąd pobierania danych: ${response.message}")
+                    }
+                }
+            }
+        })
     }
 }
