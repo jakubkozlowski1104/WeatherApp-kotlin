@@ -101,6 +101,14 @@
             android:padding="16dp"
             android:layout_marginBottom="10dp" />
 
+        <Button
+            android:id="@+id/btnAddToFavourite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dodaj do ulubionych"
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="50dp"
+            />
 
 
     </FrameLayout>

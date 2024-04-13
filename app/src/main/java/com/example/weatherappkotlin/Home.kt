@@ -1,9 +1,12 @@
+package com.example.weatherappkotlin
+
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.weatherappkotlin.databinding.FragmentHomeBinding
 import com.google.gson.Gson
@@ -19,6 +22,11 @@ class Home : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         val sharedPreferences = activity?.getSharedPreferences("CityWeatherPrefs", Context.MODE_PRIVATE)
         val cityName = sharedPreferences?.getString("cityName", "") ?: ""
@@ -28,8 +36,35 @@ class Home : Fragment() {
             fetchWeatherData(cityName)
         }
 
-        return binding.root
+        // Poprawna metoda do odnalezienia przycisku za pomocą View Binding
+        binding.btnAddToFavourite.setOnClickListener {
+            // Pobranie nazwy miasta z SharedPreferences lub z innego źródła
+            val cityName = binding.cityNameTextView.text.toString()
+            addCityToFavorites(cityName)
+            Toast.makeText(context, "Dodano do ulubionych: $cityName", Toast.LENGTH_SHORT).show()
+        }
+
+        // Pobierz listę ulubionych miast
+        val favoriteCitiesSet = sharedPreferences?.getStringSet("favoriteCities", HashSet()) ?: HashSet()
+        Log.d("HomeFragmentCheck", "Ulubione miasta: $favoriteCitiesSet")
     }
+
+
+    private fun addCityToFavorites(cityName: String) {
+        val sharedPreferences = activity?.getSharedPreferences("FavoriteCitiesPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences?.edit()
+
+        // Pobranie aktualnej listy ulubionych miast
+        val favoriteCities = sharedPreferences?.getStringSet("favoriteCities", HashSet())?.toMutableSet() ?: mutableSetOf()
+
+        // Dodanie nowego miasta do listy
+        favoriteCities.add(cityName)
+
+        // Zapisanie zaktualizowanej listy do SharedPreferences
+        editor?.putStringSet("favoriteCities", favoriteCities)?.apply()
+        Log.d("FavoriteCities", "Ulubione miasta: $favoriteCities")
+    }
+
 
     private fun fetchWeatherData(cityName: String) {
         val apiKey = "54115490ba2f3c3c704b01a9e52dad7a"

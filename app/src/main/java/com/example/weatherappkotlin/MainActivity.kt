@@ -28,6 +28,10 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val sharedPreferences = getSharedPreferences("FavoriteCitiesPrefs", Context.MODE_PRIVATE)
+        val favoriteCitiesSet = sharedPreferences.getStringSet("favoriteCities", HashSet()) ?: HashSet()
+        Log.d("MainActivity", "Ulubione miasta przy uruchomieniu: $favoriteCitiesSet")
+
         binding.btnFind.setOnClickListener {
             val cityName = binding.inpCityName.text.toString()
             if (cityName.isNotEmpty()) {
@@ -36,6 +40,12 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please enter a city name", Toast.LENGTH_SHORT).show()
             }
         }
+
+        binding.btnFavourites.setOnClickListener {
+            val intent = Intent(this@MainActivity, FavouritesCitiesActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
     private fun fetchWeatherData(cityName: String) {
@@ -63,6 +73,11 @@ class MainActivity : AppCompatActivity() {
                         val editor = sharedPreferences.edit()
                         editor.putString("cityName", cityName)
                         editor.apply()
+
+                        val cityNameShared = sharedPreferences.getString("cityName", "Nie znaleziono")
+
+                        // Wyświetlenie nazwy miasta w logach
+                        Log.d("MainActivityCheck", "Odczytano nazwę miasta: $cityNameShared")
 
                         val intent = Intent(this@MainActivity, CityWeatherActivity::class.java)
                         val bundle = Bundle()

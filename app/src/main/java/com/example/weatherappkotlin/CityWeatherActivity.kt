@@ -1,6 +1,5 @@
 package com.example.weatherappkotlin
 
-import Home
 import NextWeek
 import android.content.Context
 import android.os.Bundle
