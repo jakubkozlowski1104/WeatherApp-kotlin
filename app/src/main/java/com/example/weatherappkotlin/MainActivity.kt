@@ -28,6 +28,16 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+    val networkConnection = NetworkConnection(applicationContext)
+        networkConnection.observe(this){
+            if(it) {
+                Toast.makeText(this, "connected", Toast.LENGTH_SHORT).show()
+            } else  {
+                Toast.makeText(this, "not connected", Toast.LENGTH_SHORT).show()
+
+            }
+        }
+
         val sharedPreferences = getSharedPreferences("FavoriteCitiesPrefs", Context.MODE_PRIVATE)
         val favoriteCitiesSet = sharedPreferences.getStringSet("favoriteCities", HashSet()) ?: HashSet()
         Log.d("MainActivity", "Ulubione miasta przy uruchomieniu: $favoriteCitiesSet")
@@ -43,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnFavourites.setOnClickListener {
             val intent = Intent(this@MainActivity, FavouritesCitiesActivity::class.java)
-            startActivity(intent)
+            startActivity(intent) // Uruchomienie FavouritesCitiesActivity
         }
 
     }
