@@ -39,12 +39,19 @@ class Home : Fragment() {
                 Log.d("HomeFragmentNet", "Internet connected")
                 // Pobierz dane z API, gdy jest dostęp do Internetu
                 binding.networkStatusTextView.visibility = View.GONE
+                binding.refreshData.visibility = View.VISIBLE
                 if (cityName.isNotEmpty()) {
                     fetchWeatherData(cityName)
+                }
+                binding.refreshData.setOnClickListener {
+                    if (cityName.isNotEmpty()) {
+                        fetchWeatherData(cityName)
+                    }
                 }
             } else {
                 Log.d("HomeFragmentNet", "No internet connection")
                 binding.networkStatusTextView.visibility = View.VISIBLE
+                binding.refreshData.visibility = View.GONE
                 // Odczytaj dane z SharedPreferences, gdy brak dostępu do Internetu
                 val sharedPreferences = activity?.getSharedPreferences(cityName, Context.MODE_PRIVATE)
                 val temperature = sharedPreferences?.getString("temperature", "")?.toDoubleOrNull() ?: 0.0
@@ -61,12 +68,31 @@ class Home : Fragment() {
             }
         })
 
+        if (isCityInFavorites(cityName)) {
+            binding.btnAddToFavourite.text = "Twoje Ulubione"
+        } else {
+            binding.btnAddToFavourite.text = "Dodaj do ulubionych"
+        }
+
         // Dodaj obsługę kliknięcia przycisku
         binding.btnAddToFavourite.setOnClickListener {
             val cityName = binding.cityNameTextView.text.toString()
-            addCityToFavorites(cityName)
-            Toast.makeText(context, "Dodano do ulubionych: $cityName", Toast.LENGTH_SHORT).show()
+            if (isCityInFavorites(cityName)) {
+                Toast.makeText(context, "Miasto $cityName juz jest w ulubionych! ", Toast.LENGTH_SHORT).show()
+
+                binding.btnAddToFavourite.text = "Twoje Ulubione"
+            } else {
+                addCityToFavorites(cityName)
+                binding.btnAddToFavourite.text = "Twoje Ulubione"
+                Toast.makeText(context, "Dodano do ulubionych: $cityName", Toast.LENGTH_SHORT).show()
+            }
         }
+    }
+
+    private fun isCityInFavorites(cityName: String): Boolean {
+        val sharedPreferences = activity?.getSharedPreferences("FavoriteCitiesPrefs", Context.MODE_PRIVATE)
+        val favoriteCities = sharedPreferences?.getStringSet("favoriteCities", HashSet()) ?: emptySet()
+        return favoriteCities.contains(cityName)
     }
 
     private fun fetchWeatherData(cityName: String) {

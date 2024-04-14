@@ -13,6 +13,14 @@
         android:layout_gravity="center">
 
 
+        <Button
+            android:id="@+id/refreshData"
+            android:layout_width="155dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="250dp"
+            android:layout_marginTop="50dp"
+            android:text="Odśwież dane" />
+
         <TextView
             android:id="@+id/networkStatusTextView"
             android:layout_width="wrap_content"
@@ -117,7 +125,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Dodaj do ulubionych"
-            android:layout_marginLeft="50dp"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="50dp"
             />
 
