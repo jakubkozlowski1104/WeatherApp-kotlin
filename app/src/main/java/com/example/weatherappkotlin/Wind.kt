@@ -37,6 +37,8 @@ class Wind : Fragment() {
         return binding.root
     }
 
+
+
     private fun fetchWeatherData(cityName: String) {
         val apiKey = "54115490ba2f3c3c704b01a9e52dad7a"
         val url = "https://api.openweathermap.org/data/2.5/weather?q=$cityName&appid=$apiKey"

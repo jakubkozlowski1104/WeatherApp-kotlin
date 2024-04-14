@@ -31,7 +31,6 @@ class NextWeek : Fragment() {
         if (cityName.isNotEmpty()) {
             fetchWeatherData(cityName)
         }
-
         return binding.root
     }
 

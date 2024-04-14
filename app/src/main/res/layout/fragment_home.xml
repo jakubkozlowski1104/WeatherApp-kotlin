@@ -12,6 +12,17 @@
         android:layout_height="match_parent"
         android:layout_gravity="center">
 
+
+        <TextView
+            android:id="@+id/networkStatusTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dane mogą być nieaktualne, ponieważ nie masz dostępu do internetu"
+            android:textSize="25dp"
+            android:layout_gravity="center"
+            android:padding="12dp"
+            android:layout_marginBottom="290dp" />
+
         <TextView
             android:id="@+id/cityNameTextView"
             android:layout_width="wrap_content"
@@ -36,9 +47,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginTop="-200dp"
             android:layout_marginBottom="10dp"
             android:padding="16dp"
-            android:layout_marginTop="-240dp"
 
             android:text="Współrzędne: 0, 0"
             android:textSize="20dp" />
