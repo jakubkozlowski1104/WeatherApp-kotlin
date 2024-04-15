@@ -46,6 +46,7 @@ class Home : Fragment() {
                 binding.refreshData.setOnClickListener {
                     if (cityName.isNotEmpty()) {
                         fetchWeatherData(cityName)
+                        Toast.makeText(context, "Dane zostały odświeżone ", Toast.LENGTH_SHORT).show()
                     }
                 }
             } else {
