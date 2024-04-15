@@ -9,7 +9,7 @@
         android:icon="@drawable/baseline_cloud_queue_24"
         android:id="@+id/wind"
         />
-    <item android:title="Next week"
+    <item android:title="Forecast"
         android:icon="@drawable/baseline_calendar_today_24"
-        android:id="@+id/nextDays"/>
+        android:id="@+id/forecast"/>
 </menu>

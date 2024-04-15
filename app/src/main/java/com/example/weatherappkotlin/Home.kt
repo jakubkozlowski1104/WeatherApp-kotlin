@@ -14,6 +14,8 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import okhttp3.*
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
 class Home : Fragment() {
     private lateinit var binding: FragmentHomeBinding
@@ -60,12 +62,10 @@ class Home : Fragment() {
                 val description = sharedPreferences?.getString("description", "") ?: ""
                 val lon = sharedPreferences?.getString("lon", "")?.toDoubleOrNull() ?: 0.0
                 val lat = sharedPreferences?.getString("lat", "")?.toDoubleOrNull() ?: 0.0
-                val windSpeed = sharedPreferences?.getString("windSpeed", "")?.toDoubleOrNull() ?: 0.0
-                val windDirection = sharedPreferences?.getString("windDirection", "")?.toDoubleOrNull() ?: 0.0
-
+                val localDateTime = sharedPreferences?.getString("localDateTime", "") ?: ""
                 Log.d("HomeFragmentNet", "Shared")
                 // Wyświetl dane z SharedPreferences
-                displayWeatherData(cityName, temperature, pressure, description, lon, lat, windSpeed, windDirection)
+                displayWeatherData(cityName, temperature, pressure, description, lon, lat, localDateTime)
             }
         })
 
@@ -123,14 +123,25 @@ class Home : Fragment() {
                     val description = jsonObject.getAsJsonArray("weather").get(0).asJsonObject.get("description").asString
                     val lon = jsonObject.get("coord").asJsonObject.get("lon").asDouble
                     val lat = jsonObject.get("coord").asJsonObject.get("lat").asDouble
-                    val windSpeed = jsonObject.getAsJsonObject("wind").get("speed").asDouble
-                    val windDirection = jsonObject.getAsJsonObject("wind").get("deg").asDouble
+
+
+                    val timezoneOffset = jsonObject.get("timezone").asLong // Pobierz przesunięcie czasowe (timezone)
+                    val currentTimeMillis = System.currentTimeMillis() // Pobierz aktualny czas w milisekundach
+                    val localTimeMillis = currentTimeMillis + (timezoneOffset * 1000) // Przelicz na czas lokalny (z uwzględnieniem przesunięcia czasowego)
+                    // Ustawienie strefy czasowej na obiekcie Calendar
+                    val calendar = Calendar.getInstance()
+                    calendar.timeInMillis = localTimeMillis
+                    // Formatowanie daty i czasu do czytelnej postaci
+                    val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()) // Format daty i godziny
+                    sdf.timeZone = TimeZone.getDefault() // Ustawienie strefy czasowej na lokalną
+
+                    val localDateTime = sdf.format(calendar.time) // Sformatuj datę i czas do postaci tekstowej
 
                     // Zapisz dane pogodowe do SharedPreferences dla danego miasta
-                    saveWeatherDataToSharedPreferences(cityName, temperatureCelsius, pressure, description, lon, lat, windSpeed, windDirection)
+                    saveWeatherDataToSharedPreferences(cityName, temperatureCelsius, pressure, description, lon, lat, localDateTime)
 
                     requireActivity().runOnUiThread {
-                        displayWeatherData(cityName, temperatureCelsius, pressure, description, lon, lat, windSpeed, windDirection)
+                        displayWeatherData(cityName, temperatureCelsius, pressure, description, lon, lat, localDateTime)
                     }
                 } else {
                     requireActivity().runOnUiThread {
@@ -148,8 +159,7 @@ class Home : Fragment() {
         description: String,
         lon: Double,
         lat: Double,
-        windSpeed: Double,
-        windDirection: Double
+        localDateTime: String,
     ) {
         // Wyświetl dane pogodowe w interfejsie użytkownika
         binding.cityNameTextView.text = cityName
@@ -157,8 +167,12 @@ class Home : Fragment() {
         binding.coordinatesTextView.text = "Współrzędne: $lat, $lon"
         binding.pressureTextView.text = "Ciśnienie: $pressure hPa"
         binding.descriptionTextView.text = "Opis: $description"
-        binding.windSpeedTextView.text = "Prędkość wiatru: $windSpeed m/s"
-        binding.windDirectionTextView.text = "Kierunek wiatru: $windDirection°"
+
+        // Oblicz aktualny czas na podstawie strefy czasowej
+
+
+        // Wyświetl aktualny czas w interfejsie użytkownika
+        binding.timeTextView.text = "Aktualny czas: $localDateTime"
     }
 
     private fun saveWeatherDataToSharedPreferences(
@@ -168,8 +182,7 @@ class Home : Fragment() {
         description: String,
         lon: Double,
         lat: Double,
-        windSpeed: Double,
-        windDirection: Double
+        localDateTime: String,
     ) {
         val sharedPreferences = activity?.getSharedPreferences(cityName, Context.MODE_PRIVATE)
         val editor = sharedPreferences?.edit()
@@ -180,8 +193,7 @@ class Home : Fragment() {
             putString("description", description)
             putString("lon", lon.toString())
             putString("lat", lat.toString())
-            putString("windSpeed", windSpeed.toString())
-            putString("windDirection", windDirection.toString())
+            putString("localDateTime", localDateTime)
             apply()
         }
     }
