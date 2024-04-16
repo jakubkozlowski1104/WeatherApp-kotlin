@@ -167,10 +167,10 @@ class Home : Fragment() {
         binding.temperatureTextView.text = "$roundedTemperature°C"
         binding.coordinatesTextView.text = "$lat, $lon"
         binding.descriptionTextView.text = "$description"
-//        binding.imageView =
 
-        // Oblicz aktualny czas na podstawie strefy czasowej
-
+        // Wybierz odpowiedni obraz na podstawie opisu
+        val iconResource = weatherIconsMap[description] ?: R.drawable.sunny // Użyj domyślnego obrazu, jeśli nie ma mapowania
+        binding.imageView.setImageResource(iconResource)
 
         // Wyświetl aktualny czas w interfejsie użytkownika
         binding.timeTextView.text = "$localDateTime"
@@ -209,4 +209,18 @@ class Home : Fragment() {
         editor?.putStringSet("favoriteCities", favoriteCities)?.apply()
         Log.d("FavoriteCitiesXD", "Ulubione miasta: $favoriteCities")
     }
+
+    val weatherIconsMap = mapOf(
+        "bezchmurnie" to R.drawable.clear_sun,
+        "pochmurnie" to R.drawable.cloudy_sunny,
+        "zachmurzenie" to R.drawable.cloudy,
+        "zachmurzenie duże" to R.drawable.cloudy,
+        "słabe opady deszczu" to R.drawable.rainy,
+        "ulewy" to R.drawable.rainy,
+        "słabe przelotne opady deszczu" to R.drawable.rainy,
+        "burze z piorunami" to R.drawable.storm,
+        "słabe opady śniegu" to R.drawable.snowy,
+        "opady śniegu" to R.drawable.snowy
+    )
+
 }
