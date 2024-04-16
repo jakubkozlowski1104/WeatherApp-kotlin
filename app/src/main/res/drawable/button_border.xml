@@ -1,0 +1,9 @@
+<!-- button_border.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <stroke
+        android:width="2dp"
+        android:color="@color/fiolet" /> <!-- Kolor obramowania -->
+    <corners
+        android:radius="40dp" /> <!-- Zaokrąglenie narożników (opcjonalne) -->
+</shape>

@@ -41,11 +41,11 @@ class Home : Fragment() {
                 Log.d("HomeFragmentNet", "Internet connected")
                 // Pobierz dane z API, gdy jest dostęp do Internetu
                 binding.networkStatusTextView.visibility = View.GONE
-                binding.refreshData.visibility = View.VISIBLE
+                binding.btnRefreshData.visibility = View.VISIBLE
                 if (cityName.isNotEmpty()) {
                     fetchWeatherData(cityName)
                 }
-                binding.refreshData.setOnClickListener {
+                binding.btnRefreshData.setOnClickListener {
                     if (cityName.isNotEmpty()) {
                         fetchWeatherData(cityName)
                         Toast.makeText(context, "Dane zostały odświeżone ", Toast.LENGTH_SHORT).show()
@@ -54,7 +54,7 @@ class Home : Fragment() {
             } else {
                 Log.d("HomeFragmentNet", "No internet connection")
                 binding.networkStatusTextView.visibility = View.VISIBLE
-                binding.refreshData.visibility = View.GONE
+                binding.btnRefreshData.visibility = View.GONE
                 // Odczytaj dane z SharedPreferences, gdy brak dostępu do Internetu
                 val sharedPreferences = activity?.getSharedPreferences(cityName, Context.MODE_PRIVATE)
                 val temperature = sharedPreferences?.getString("temperature", "")?.toDoubleOrNull() ?: 0.0
@@ -99,7 +99,7 @@ class Home : Fragment() {
     private fun fetchWeatherData(cityName: String) {
         Log.d("HomeFragmentNet", "Fetch")
         val apiKey = "54115490ba2f3c3c704b01a9e52dad7a"
-        val url = "https://api.openweathermap.org/data/2.5/weather?q=$cityName&appid=$apiKey"
+        val url = "https://api.openweathermap.org/data/2.5/weather?q=$cityName&appid=$apiKey&lang=pl"
 
         val client = OkHttpClient()
         val request = Request.Builder().url(url).build()
@@ -163,16 +163,17 @@ class Home : Fragment() {
     ) {
         // Wyświetl dane pogodowe w interfejsie użytkownika
         binding.cityNameTextView.text = cityName
-        binding.temperatureTextView.text = "$temperature °C"
-        binding.coordinatesTextView.text = "Współrzędne: $lat, $lon"
-        binding.pressureTextView.text = "Ciśnienie: $pressure hPa"
-        binding.descriptionTextView.text = "Opis: $description"
+        val roundedTemperature = temperature.toInt()
+        binding.temperatureTextView.text = "$roundedTemperature°C"
+        binding.coordinatesTextView.text = "$lat, $lon"
+        binding.descriptionTextView.text = "$description"
+//        binding.imageView =
 
         // Oblicz aktualny czas na podstawie strefy czasowej
 
 
         // Wyświetl aktualny czas w interfejsie użytkownika
-        binding.timeTextView.text = "Aktualny czas: $localDateTime"
+        binding.timeTextView.text = "$localDateTime"
     }
 
     private fun saveWeatherDataToSharedPreferences(
