@@ -39,7 +39,6 @@ class Home : Fragment() {
         networkConnection.observe(viewLifecycleOwner, Observer { isConnected ->
             if (isConnected) {
                 Log.d("HomeFragmentNet", "Internet connected")
-                // Pobierz dane z API, gdy jest dostęp do Internetu
                 binding.networkStatusTextView.visibility = View.GONE
                 binding.btnRefreshData.visibility = View.VISIBLE
                 if (cityName.isNotEmpty()) {
@@ -55,17 +54,9 @@ class Home : Fragment() {
                 Log.d("HomeFragmentNet", "No internet connection")
                 binding.networkStatusTextView.visibility = View.VISIBLE
                 binding.btnRefreshData.visibility = View.GONE
-                // Odczytaj dane z SharedPreferences, gdy brak dostępu do Internetu
-                val sharedPreferences = activity?.getSharedPreferences(cityName, Context.MODE_PRIVATE)
-                val temperature = sharedPreferences?.getString("temperature", "")?.toDoubleOrNull() ?: 0.0
-                val pressure = sharedPreferences?.getString("pressure", "")?.toDoubleOrNull() ?: 0.0
-                val description = sharedPreferences?.getString("description", "") ?: ""
-                val lon = sharedPreferences?.getString("lon", "")?.toDoubleOrNull() ?: 0.0
-                val lat = sharedPreferences?.getString("lat", "")?.toDoubleOrNull() ?: 0.0
-                val localDateTime = sharedPreferences?.getString("localDateTime", "") ?: ""
-                Log.d("HomeFragmentNet", "Shared")
-                // Wyświetl dane z SharedPreferences
-                displayWeatherData(cityName, temperature, pressure, description, lon, lat, localDateTime)
+
+                // Read weather data from SharedPreferences when no internet connection
+                readWeatherDataFromSharedPreferences(cityName)
             }
         })
 
@@ -75,16 +66,12 @@ class Home : Fragment() {
             binding.btnAddToFavourite.text = "Dodaj do ulubionych"
         }
 
-        // Dodaj obsługę kliknięcia przycisku
         binding.btnAddToFavourite.setOnClickListener {
             val cityName = binding.cityNameTextView.text.toString()
             if (isCityInFavorites(cityName)) {
-                Toast.makeText(context, "Miasto $cityName juz jest w ulubionych! ", Toast.LENGTH_SHORT).show()
-
-                binding.btnAddToFavourite.text = "Twoje Ulubione"
+                Toast.makeText(context, "Miasto $cityName już jest w ulubionych!", Toast.LENGTH_SHORT).show()
             } else {
                 addCityToFavorites(cityName)
-                binding.btnAddToFavourite.text = "Twoje Ulubione"
                 Toast.makeText(context, "Dodano do ulubionych: $cityName", Toast.LENGTH_SHORT).show()
             }
         }
@@ -92,12 +79,11 @@ class Home : Fragment() {
 
     private fun isCityInFavorites(cityName: String): Boolean {
         val sharedPreferences = activity?.getSharedPreferences("FavoriteCitiesPrefs", Context.MODE_PRIVATE)
-        val favoriteCities = sharedPreferences?.getStringSet("favoriteCities", HashSet()) ?: emptySet()
+        val favoriteCities = sharedPreferences?.getStringSet("favoriteCities", emptySet()) ?: emptySet()
         return favoriteCities.contains(cityName)
     }
 
     private fun fetchWeatherData(cityName: String) {
-        Log.d("HomeFragmentNet", "Fetch")
         val apiKey = "54115490ba2f3c3c704b01a9e52dad7a"
         val url = "https://api.openweathermap.org/data/2.5/weather?q=$cityName&appid=$apiKey&lang=pl"
 
@@ -117,31 +103,41 @@ class Home : Fragment() {
                     val gson = Gson()
                     val jsonObject = gson.fromJson(response.body?.string(), JsonObject::class.java)
 
-                    val temperature = jsonObject.getAsJsonObject("main").get("temp").asDouble
-                    val temperatureCelsius = temperature - 273.15
-                    val pressure = jsonObject.getAsJsonObject("main").get("pressure").asDouble
-                    val description = jsonObject.getAsJsonArray("weather").get(0).asJsonObject.get("description").asString
-                    val lon = jsonObject.get("coord").asJsonObject.get("lon").asDouble
-                    val lat = jsonObject.get("coord").asJsonObject.get("lat").asDouble
+                    val mainObject = jsonObject.getAsJsonObject("main")
+                    val temperature = mainObject.get("temp").asDouble
+                    val tempMin = mainObject.get("temp_min").asDouble
+                    val tempMax = mainObject.get("temp_max").asDouble
 
+                    val weatherArray = jsonObject.getAsJsonArray("weather")
+                    val weatherObject = weatherArray.get(0).asJsonObject
+                    val description = weatherObject.get("description").asString
 
-                    val timezoneOffset = jsonObject.get("timezone").asLong // Pobierz przesunięcie czasowe (timezone)
-                    val currentTimeMillis = System.currentTimeMillis() // Pobierz aktualny czas w milisekundach
-                    val localTimeMillis = currentTimeMillis + (timezoneOffset * 1000) // Przelicz na czas lokalny (z uwzględnieniem przesunięcia czasowego)
-                    // Ustawienie strefy czasowej na obiekcie Calendar
+                    val lon = jsonObject.getAsJsonObject("coord").get("lon").asDouble
+                    val lat = jsonObject.getAsJsonObject("coord").get("lat").asDouble
+
+                    val timezoneOffset = jsonObject.get("timezone").asLong
+                    val currentTimeMillis = System.currentTimeMillis()
+                    val localTimeMillis = currentTimeMillis + (timezoneOffset * 1000)
+
                     val calendar = Calendar.getInstance()
                     calendar.timeInMillis = localTimeMillis
-                    // Formatowanie daty i czasu do czytelnej postaci
-                    val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()) // Format daty i godziny
-                    sdf.timeZone = TimeZone.getDefault() // Ustawienie strefy czasowej na lokalną
+                    val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+                    sdf.timeZone = TimeZone.getDefault()
+                    val localDateTime = sdf.format(calendar.time)
 
-                    val localDateTime = sdf.format(calendar.time) // Sformatuj datę i czas do postaci tekstowej
-
-                    // Zapisz dane pogodowe do SharedPreferences dla danego miasta
-                    saveWeatherDataToSharedPreferences(cityName, temperatureCelsius, pressure, description, lon, lat, localDateTime)
+                    saveWeatherDataToSharedPreferences(
+                        cityName,
+                        temperature,
+                        tempMin,
+                        tempMax,
+                        description,
+                        lon,
+                        lat,
+                        localDateTime
+                    )
 
                     requireActivity().runOnUiThread {
-                        displayWeatherData(cityName, temperatureCelsius, pressure, description, lon, lat, localDateTime)
+                        displayWeatherData(cityName, temperature, tempMin, tempMax, description, lon, lat, localDateTime)
                     }
                 } else {
                     requireActivity().runOnUiThread {
@@ -155,31 +151,31 @@ class Home : Fragment() {
     private fun displayWeatherData(
         cityName: String,
         temperature: Double,
-        pressure: Double,
+        tempMin: Double,
+        tempMax: Double,
         description: String,
         lon: Double,
         lat: Double,
         localDateTime: String,
     ) {
-        // Wyświetl dane pogodowe w interfejsie użytkownika
         binding.cityNameTextView.text = cityName
-        val roundedTemperature = temperature.toInt()
-        binding.temperatureTextView.text = "$roundedTemperature°C"
+        binding.temperatureTextView.text = "${temperature.toInt() - 273}°C"
+        binding.minTempTextView.text = "Min: ${tempMin.toInt() - 273}°C"
+        binding.maxTempTextView.text = "Max: ${tempMax.toInt()- 273}°C"
         binding.coordinatesTextView.text = "$lat, $lon"
-        binding.descriptionTextView.text = "$description"
+        binding.descriptionTextView.text = description
 
-        // Wybierz odpowiedni obraz na podstawie opisu
-        val iconResource = weatherIconsMap[description] ?: R.drawable.sunny // Użyj domyślnego obrazu, jeśli nie ma mapowania
+        val iconResource = weatherIconsMap[description] ?: R.drawable.sunny
         binding.imageView.setImageResource(iconResource)
 
-        // Wyświetl aktualny czas w interfejsie użytkownika
-        binding.timeTextView.text = "$localDateTime"
+        binding.timeTextView.text = localDateTime
     }
 
     private fun saveWeatherDataToSharedPreferences(
         cityName: String,
         temperature: Double,
-        pressure: Double,
+        tempMin: Double,
+        tempMax: Double,
         description: String,
         lon: Double,
         lat: Double,
@@ -190,7 +186,8 @@ class Home : Fragment() {
 
         editor?.apply {
             putString("temperature", temperature.toString())
-            putString("pressure", pressure.toString())
+            putString("temp_min", tempMin.toString())
+            putString("temp_max", tempMax.toString())
             putString("description", description)
             putString("lon", lon.toString())
             putString("lat", lat.toString())
@@ -199,18 +196,31 @@ class Home : Fragment() {
         }
     }
 
+    private fun readWeatherDataFromSharedPreferences(cityName: String) {
+        val sharedPreferences = activity?.getSharedPreferences(cityName, Context.MODE_PRIVATE)
+        val temperature = sharedPreferences?.getString("temperature", "0")?.toDoubleOrNull() ?: 0.0
+        val tempMin = sharedPreferences?.getString("temp_min", "0")?.toDoubleOrNull() ?: 0.0
+        val tempMax = sharedPreferences?.getString("temp_max", "0")?.toDoubleOrNull() ?: 0.0
+        val description = sharedPreferences?.getString("description", "") ?: ""
+        val lon = sharedPreferences?.getString("lon", "0")?.toDoubleOrNull() ?: 0.0
+        val lat = sharedPreferences?.getString("lat", "0")?.toDoubleOrNull() ?: 0.0
+        val localDateTime = sharedPreferences?.getString("localDateTime", "") ?: ""
+
+        displayWeatherData(cityName, temperature, tempMin, tempMax, description, lon, lat, localDateTime)
+    }
+
     private fun addCityToFavorites(cityName: String) {
         val sharedPreferences = activity?.getSharedPreferences("FavoriteCitiesPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences?.edit()
 
-        val favoriteCities = sharedPreferences?.getStringSet("favoriteCities", HashSet())?.toMutableSet() ?: mutableSetOf()
+        val favoriteCities = sharedPreferences?.getStringSet("favoriteCities", emptySet())?.toMutableSet() ?: mutableSetOf()
         favoriteCities.add(cityName)
 
         editor?.putStringSet("favoriteCities", favoriteCities)?.apply()
         Log.d("FavoriteCitiesXD", "Ulubione miasta: $favoriteCities")
     }
 
-    val weatherIconsMap = mapOf(
+    private val weatherIconsMap = mapOf(
         "bezchmurnie" to R.drawable.clear_sun,
         "pochmurnie" to R.drawable.cloudy_sunny,
         "zachmurzenie" to R.drawable.cloudy,
@@ -222,5 +232,4 @@ class Home : Fragment() {
         "słabe opady śniegu" to R.drawable.snowy,
         "opady śniegu" to R.drawable.snowy
     )
-
 }
