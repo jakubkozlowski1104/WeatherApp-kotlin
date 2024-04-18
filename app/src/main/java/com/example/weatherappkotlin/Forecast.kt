@@ -100,6 +100,7 @@ class Forecast : Fragment() {
 
                     requireActivity().runOnUiThread {
                         forecastAdapter.setData(filteredForecastItems)
+                        Log.e("ForecastShared", "Zapisano dane do SharedPreferences")
                     }
                 } else {
                     requireActivity().runOnUiThread {
@@ -107,6 +108,7 @@ class Forecast : Fragment() {
                     }
                 }
             }
+
         })
     }
 
@@ -165,14 +167,11 @@ class Forecast : Fragment() {
         description: String,
         dateText: String
     ) {
-        val sharedPreferences = activity?.getSharedPreferences(cityName, Context.MODE_PRIVATE)
+        val sharedPreferences = activity?.getSharedPreferences("CityWeatherPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences?.edit()
 
-        // Utwórz unikalny klucz dla każdego dnia, łącząc datę z opisem, ale upewnij się, że daty są sortowalne
-        // Możemy to osiągnąć, dodając datę jako część klucza w formacie YYYYMMDD, który jest łatwo sortowalny
-        val key = "forecast-$dateText-$description"
 
-        // Zapisz dane prognozy jako JSON
+        val key = "forecast-$dateText-$description"
         val forecastData = JsonObject().apply {
             addProperty("temperature", temperature)
             addProperty("description", description)
@@ -183,17 +182,22 @@ class Forecast : Fragment() {
             putString(key, forecastData.toString())
             apply()
         }
+
+        Log.e("ForecastShared", "Zapisano")
+
+
+        // Pobierz dane prognozy zaktualizowane w SharedPreferences
+        readWeatherDataFromSharedPreferences(cityName)
     }
 
     private fun readWeatherDataFromSharedPreferences(cityName: String) {
-        val sharedPreferences = activity?.getSharedPreferences(cityName, Context.MODE_PRIVATE)
+        val sharedPreferences = activity?.getSharedPreferences("CityWeatherPrefs", Context.MODE_PRIVATE)
         val allKeys = sharedPreferences?.all?.keys ?: emptySet()
 
-        // Filtruj klucze, aby uwzględnić tylko te, które są związane z prognozą
         val forecastKeys = allKeys.filter { it.startsWith("forecast-") }
-
-        // Sortuj klucze według daty, która jest częścią klucza
         val sortedForecastKeys = forecastKeys.sortedBy { it.substringAfter("forecast-").substringBefore("-") }
+
+        val filteredForecastItems = mutableListOf<ForecastItem>()
 
         sortedForecastKeys.forEach { key ->
             val forecastDataString = sharedPreferences?.getString(key, "") ?: ""
@@ -206,16 +210,20 @@ class Forecast : Fragment() {
                     val description = forecastData.get("description")?.asString ?: ""
                     val dateText = forecastData.get("date")?.asString ?: ""
 
-                    requireActivity().runOnUiThread {
-                        val forecastText = "$cityName ($dateText): Temperatura: ${temperature}°C, Opis: $description"
-//                        binding.temperatureForecastTextView.append("\n$forecastText")
-                    }
+                    Log.e("ForecastShared", "Odczytano: $temperature, $description, $dateText")
+
+
+                    val forecastItem = ForecastItem(dateText, temperature, description)
+                    filteredForecastItems.add(forecastItem)
                 } catch (e: JsonSyntaxException) {
                     Log.e("ForecastFragment", "Error parsing forecast data: ${e.message}")
                 }
             }
         }
+
+        // Zaktualizuj dane w adapterze
+        forecastAdapter.setData(filteredForecastItems)
+        Log.e("ForecastShared", "SET DATA")
     }
 
 }
-
