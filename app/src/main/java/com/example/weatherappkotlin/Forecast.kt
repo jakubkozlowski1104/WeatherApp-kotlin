@@ -39,7 +39,7 @@ class Forecast : Fragment() {
         forecastAdapter = ForecastAdapter(emptyList()) // Początkowo adapter bez danych
 
         binding.forecastRecyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
             adapter = forecastAdapter
         }
 
@@ -59,6 +59,7 @@ class Forecast : Fragment() {
             }
         })
     }
+
 
     private fun fetchWeatherData(cityName: String) {
         val apiKey = "54115490ba2f3c3c704b01a9e52dad7a"

@@ -20,6 +20,7 @@ class ForecastAdapter(private var forecastList: List<ForecastItem>) :
         return ForecastViewHolder(view)
     }
 
+
     override fun onBindViewHolder(holder: ForecastViewHolder, position: Int) {
         val forecastItem = forecastList[position]
 
