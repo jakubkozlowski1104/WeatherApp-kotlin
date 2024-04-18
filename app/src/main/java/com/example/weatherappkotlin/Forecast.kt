@@ -156,9 +156,25 @@ class Forecast : Fragment() {
 
     // Funkcja pomocnicza do formatowania daty z timestampa
     private fun formatDate(timestamp: Long): String {
-        val dateFormat = java.text.SimpleDateFormat("dd.MM")
-        val date = java.util.Date(timestamp * 1000)
-        return dateFormat.format(date)
+        val dateFormat = SimpleDateFormat("dd.MM", Locale.getDefault())
+        val date = Date(timestamp * 1000)
+
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+        val dayOfWeekLabel = when (dayOfWeek) {
+            Calendar.MONDAY -> "poniedziałek"
+            Calendar.TUESDAY -> "wtorek"
+            Calendar.WEDNESDAY -> "środa"
+            Calendar.THURSDAY -> "czwartek"
+            Calendar.FRIDAY -> "piątek"
+            Calendar.SATURDAY -> "sobota"
+            Calendar.SUNDAY -> "niedziela"
+            else -> ""
+        }
+
+        return "$dayOfWeekLabel\n${dateFormat.format(date)}"
     }
 
     private fun saveWeatherDataToSharedPreferences(
