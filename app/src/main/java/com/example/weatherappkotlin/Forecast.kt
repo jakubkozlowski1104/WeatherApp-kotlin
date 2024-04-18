@@ -8,21 +8,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherappkotlin.databinding.FragmentForecastBinding
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonSyntaxException
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import okhttp3.*
 import java.io.IOException
-import java.util.Locale
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 class Forecast : Fragment() {
     private lateinit var binding: FragmentForecastBinding
     private lateinit var networkConnection: NetworkConnection
+    private lateinit var forecastAdapter: ForecastAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,9 +33,15 @@ class Forecast : Fragment() {
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        forecastAdapter = ForecastAdapter(emptyList()) // Początkowo adapter bez danych
+
+        binding.forecastRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = forecastAdapter
+        }
 
         val sharedPreferences = activity?.getSharedPreferences("CityWeatherPrefs", Context.MODE_PRIVATE)
         val cityName = sharedPreferences?.getString("cityName", "") ?: ""
@@ -44,23 +51,19 @@ class Forecast : Fragment() {
             if (isConnected) {
                 Log.d("ForecastFragmentNet", "Internet connected")
                 if (cityName.isNotEmpty()) {
-                    Log.d("ForecastFragmentNet", "idzie tu")
-
                     fetchWeatherData(cityName)
                 }
             } else {
                 Log.d("ForecastFragmentNet", "No internet connection")
-                // Read weather data from SharedPreferences when no internet connection
                 readWeatherDataFromSharedPreferences(cityName)
             }
         })
     }
 
     private fun fetchWeatherData(cityName: String) {
-
         val apiKey = "54115490ba2f3c3c704b01a9e52dad7a"
         val url = "https://api.openweathermap.org/data/2.5/forecast?q=$cityName&appid=$apiKey&lang=pl"
-        Log.d("ForecastFragmentNet", "w feczu")
+
         val client = OkHttpClient()
         val request = Request.Builder().url(url).build()
 
@@ -68,30 +71,38 @@ class Forecast : Fragment() {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 requireActivity().runOnUiThread {
-                    Log.d("ForecastCheck", "Błąd pobierania danych: ${e.message}")
+                    Log.d("ForecastCheck", "Error fetching data: ${e.message}")
                 }
             }
 
-            override fun onResponse(call: Call, response: okhttp3.Response) {
+            override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     val gson = Gson()
                     val jsonObject = gson.fromJson(response.body?.string(), JsonObject::class.java)
-
                     val forecastList = jsonObject.getAsJsonArray("list")
 
-                    // Iteruj przez wszystkie elementy w forecastList
+                    val filteredForecastItems = mutableListOf<ForecastItem>()
+
                     for (i in 0 until forecastList.size()) {
                         val dailyForecast = forecastList.get(i).asJsonObject
                         val dtTxt = dailyForecast.get("dt_txt").asString
 
-                        // Sprawdź, czy dt_txt zawiera "12:00:00"
                         if (dtTxt.contains("12:00:00")) {
-                            processForecast(forecastList, i, 0) // Przekazujemy 0 jako dayOffset, ponieważ teraz nie korzystamy z przesunięcia
+                            val temperature = dailyForecast.getAsJsonObject("main").get("temp").asDouble - 273.15
+                            val description = dailyForecast.getAsJsonArray("weather").get(0).asJsonObject.get("description").asString
+                            val dateText = formatDate(dailyForecast.get("dt").asLong)
+
+                            val forecastItem = ForecastItem(dateText, temperature, description)
+                            filteredForecastItems.add(forecastItem)
                         }
+                    }
+
+                    requireActivity().runOnUiThread {
+                        forecastAdapter.setData(filteredForecastItems)
                     }
                 } else {
                     requireActivity().runOnUiThread {
-                        Log.d("ForecastCheck", "Błąd pobierania danych: ${response.message}")
+                        Log.d("ForecastCheck", "Error fetching data: ${response.message}")
                     }
                 }
             }
@@ -115,7 +126,8 @@ class Forecast : Fragment() {
 
         requireActivity().runOnUiThread {
             val forecastText = "$dayOfWeekLabel ($dateText): Temperatura: ${temperature}°C, Opis: $description"
-            binding.temperatureForecastTextView.append("\n$forecastText")
+//            binding.temperatureForecastTextView.append("\n$forecastText")
+
         }
 
         // Zapisz dane prognozy do SharedPreferences
@@ -195,7 +207,7 @@ class Forecast : Fragment() {
 
                     requireActivity().runOnUiThread {
                         val forecastText = "$cityName ($dateText): Temperatura: ${temperature}°C, Opis: $description"
-                        binding.temperatureForecastTextView.append("\n$forecastText")
+//                        binding.temperatureForecastTextView.append("\n$forecastText")
                     }
                 } catch (e: JsonSyntaxException) {
                     Log.e("ForecastFragment", "Error parsing forecast data: ${e.message}")
