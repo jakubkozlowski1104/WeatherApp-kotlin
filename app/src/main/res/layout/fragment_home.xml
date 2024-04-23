@@ -84,9 +84,11 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Clear Sky"
+                android:text="Zachmurzenie"
                 android:textColor="@color/white"
-                android:textSize="20dp" />
+                android:textSize="20dp"
+                android:layout_gravity="center_vertical|center_horizontal" />
+
         </LinearLayout>
 
 

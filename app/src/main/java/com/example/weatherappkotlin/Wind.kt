@@ -117,17 +117,18 @@ class Wind : Fragment() {
         windSpeed: Double,
         windDirection: Double
     ) {
-        binding.pressureTextView.text = "Ciśnienie: $pressure hPa"
-        binding.humidityTextView.text = "Wilgotność: $humidity %"
+        binding.cityName.text = "$cityName"
+        binding.pressure.text = "$pressure hPa"
+        binding.humidity.text = "$humidity %"
 
         val sunriseTime = formatTimestamp(sunriseTimestamp)
         val sunsetTime = formatTimestamp(sunsetTimestamp)
 
-        binding.sunriseTextView.text = "Wschód słońca: $sunriseTime"
-        binding.sunsetTextView.text = "Zachód słońca: $sunsetTime"
+        binding.sunrise.text = " $sunriseTime"
+        binding.sunset.text = "$sunsetTime"
 
-        binding.windSpeedTextView.text = "Prędkość wiatru: $windSpeed m/s"
-        binding.windDirectionTextView.text = "Kierunek wiatru: $windDirection°"
+        binding.wind.text = "$windSpeed m/s"
+        binding.about.text = "$windDirection°"
     }
 
     private fun formatTimestamp(timestamp: Long): String {
