@@ -158,15 +158,36 @@ class Home : Fragment() {
         lat: Double,
         localDateTime: String,
     ) {
+        val sharedPreferences = activity?.getSharedPreferences("TemperatureUnitPrefs", Context.MODE_PRIVATE)
+        val isFahrenheit = sharedPreferences?.getBoolean("temperatureUnit", false) ?: false
+        Log.d("unit", "is faren: $isFahrenheit")
+
+        val formattedTemperature = if (isFahrenheit) {
+            "${temperature.toInt()}°F"
+        } else {
+            "${(temperature - 273).toInt()}°C"
+        }
+
+        val formattedMinTemp = if (isFahrenheit) {
+            "Min: ${tempMin.toInt()}°F"
+        } else {
+            "Min: ${(tempMin - 273).toInt()}°C"
+        }
+
+        val formattedMaxTemp = if (isFahrenheit) {
+            "Max: ${tempMax.toInt()}°F"
+        } else {
+            "Max: ${(tempMax - 273).toInt()}°C"
+        }
+
         binding.cityNameTextView.text = cityName
-        binding.temperatureTextView.text = "${temperature.toInt() - 273}°C"
-        binding.minTempTextView.text = "Min: ${tempMin.toInt() - 273}°C"
-        binding.maxTempTextView.text = "Max: ${tempMax.toInt()- 273}°C"
+        binding.temperatureTextView.text = formattedTemperature
+        binding.minTempTextView.text = formattedMinTemp
+        binding.maxTempTextView.text = formattedMaxTemp
         binding.coordinatesTextView.text = "$lat, $lon"
         binding.descriptionTextView.text = description
 
         val iconResource = weatherIconsMap[description] ?: R.drawable.sunny
-        binding.weatherIconImageView.setImageResource(iconResource)
         binding.weatherIconImageView.setImageResource(iconResource)
 
         binding.timeTextView.text = localDateTime

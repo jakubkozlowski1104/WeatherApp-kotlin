@@ -57,6 +57,20 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.114" />
 
+        <ToggleButton
+            android:id="@+id/toggleTemperatureUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:checked="false"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:textOff="°C"
+            android:textOn="°F"
+            tools:ignore="MissingConstraints"
+            tools:layout_editor_absoluteX="74dp"
+            tools:layout_editor_absoluteY="310dp" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout

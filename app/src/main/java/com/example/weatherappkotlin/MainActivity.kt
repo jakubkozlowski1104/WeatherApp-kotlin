@@ -41,6 +41,18 @@ class MainActivity : AppCompatActivity() {
         val favoriteCitiesSet = sharedPreferences.getStringSet("favoriteCities", HashSet()) ?: HashSet()
         Log.d("MainActivity", "Ulubione miasta przy uruchomieniu: $favoriteCitiesSet")
 
+        val sharedPreferencesToggle = getSharedPreferences("TemperatureUnitPrefs", Context.MODE_PRIVATE)
+        val isFahrenheitSelected = sharedPreferencesToggle.getBoolean("temperatureUnit", false)
+
+        // Ustawienie stanu przycisku toggle zgodnie z zapisanymi preferencjami
+        binding.toggleTemperatureUnit.isChecked = isFahrenheitSelected
+
+        // Obsługa zmiany stanu przycisku toggle
+        binding.toggleTemperatureUnit.setOnCheckedChangeListener { buttonView, isChecked ->
+            // Zapisanie wyboru jednostki temperatury do SharedPreferences
+            sharedPreferencesToggle.edit().putBoolean("temperatureUnit", isChecked).apply()
+        }
+
         binding.btnFind.setOnClickListener {
             val cityName = binding.inpCityName.text.toString()
             if (cityName.isNotEmpty()) {
