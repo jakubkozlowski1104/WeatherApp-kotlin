@@ -159,23 +159,23 @@ class Home : Fragment() {
         localDateTime: String,
     ) {
         val sharedPreferences = activity?.getSharedPreferences("TemperatureUnitPrefs", Context.MODE_PRIVATE)
-        val isFahrenheit = sharedPreferences?.getBoolean("temperatureUnit", false) ?: false
-        Log.d("unit", "is faren: $isFahrenheit")
+        val isKelvin = sharedPreferences?.getBoolean("temperatureUnit", false) ?: false
+        Log.d("unit", "is faren: $isKelvin")
 
-        val formattedTemperature = if (isFahrenheit) {
-            "${temperature.toInt()}°F"
+        val formattedTemperature = if (isKelvin) {
+            "${temperature.toInt()}K"
         } else {
             "${(temperature - 273).toInt()}°C"
         }
 
-        val formattedMinTemp = if (isFahrenheit) {
-            "Min: ${tempMin.toInt()}°F"
+        val formattedMinTemp = if (isKelvin) {
+            "Min: ${tempMin.toInt()}K"
         } else {
             "Min: ${(tempMin - 273).toInt()}°C"
         }
 
-        val formattedMaxTemp = if (isFahrenheit) {
-            "Max: ${tempMax.toInt()}°F"
+        val formattedMaxTemp = if (isKelvin) {
+            "Max: ${tempMax.toInt()}K"
         } else {
             "Max: ${(tempMax - 273).toInt()}°C"
         }

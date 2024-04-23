@@ -27,7 +27,7 @@
             android:inputType="text"
             app:layout_constraintBottom_toTopOf="@id/btnFind"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.5" />
@@ -39,7 +39,7 @@
             android:text="Find"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_bias="0.501"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/inpCityName"
             app:layout_constraintVertical_bias="0.5" />
@@ -66,10 +66,10 @@
             android:paddingTop="16dp"
             android:paddingEnd="16dp"
             android:textOff="°C"
-            android:textOn="°F"
+            android:textOn="K"
             tools:ignore="MissingConstraints"
-            tools:layout_editor_absoluteX="74dp"
-            tools:layout_editor_absoluteY="310dp" />
+            tools:layout_editor_absoluteX="47dp"
+            tools:layout_editor_absoluteY="32dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -88,13 +88,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Go to favorites"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.5" />
-
+            tools:layout_editor_absoluteX="135dp"
+            tools:layout_editor_absoluteY="16dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -89,7 +89,23 @@ class Forecast : Fragment() {
                         val dtTxt = dailyForecast.get("dt_txt").asString
 
                         if (dtTxt.contains("12:00:00")) {
-                            val temperature = dailyForecast.getAsJsonObject("main").get("temp").asDouble - 273.15
+                            val sharedPreferencesUnits = activity?.getSharedPreferences("TemperatureUnitPrefs", Context.MODE_PRIVATE)
+                            val isFahrenheit = sharedPreferencesUnits?.getBoolean("temperatureUnit", false) ?: false
+
+                            var temperature = dailyForecast.getAsJsonObject("main").get("temp").asDouble
+
+                            if (!isFahrenheit) {
+                                // Konwersja z Kelwinów na stopnie Celsjusza
+                                temperature -= 273.15
+                            }
+
+                            // Konwersja temperatury do stopni Fahrenheit, jeśli preferencja jest ustawiona
+                            val formattedTemperature = if (isFahrenheit) {
+                                "${(temperature * 9 / 5) + 32}°F"
+                            } else {
+                                "${temperature.toInt()}°C"
+                            }
+
                             val description = dailyForecast.getAsJsonArray("weather").get(0).asJsonObject.get("description").asString
                             val dateText = formatDate(dailyForecast.get("dt").asLong)
 
@@ -108,7 +124,6 @@ class Forecast : Fragment() {
                     }
                 }
             }
-
         })
     }
 
@@ -119,19 +134,23 @@ class Forecast : Fragment() {
         val weather = weatherArray.get(0).asJsonObject
 
         // Zaokrąglenie temperatury do najbliższej liczby całkowitej
-        val temperature = Math.round(main.get("temp").asDouble - 273.15).toDouble()
+
+        val sharedPreferencesUnits = activity?.getSharedPreferences("TemperatureUnitPrefs", Context.MODE_PRIVATE)
+        val isFahrenheit = sharedPreferencesUnits?.getBoolean("temperatureUnit", false) ?: false
+        Log.d("unit", "is faren: $isFahrenheit")
+        var temperature = 0.0;
+
+        if (isFahrenheit) {
+            temperature = Math.round(main.get("temp").asDouble).toDouble()
+        } else {
+            temperature = Math.round(main.get("temp").asDouble).toDouble()
+        }
         val description = weather.get("description").asString
         val dateText = formatDate(dailyForecast.get("dt").asLong)
 
         // Obliczanie poprawnego dnia tygodnia na podstawie daty z dt_txt
         val dtTxt = dailyForecast.get("dt_txt").asString
         val dayOfWeekLabel = getDayOfWeekLabelFromDate(dtTxt)
-
-        requireActivity().runOnUiThread {
-            val forecastText = "$dayOfWeekLabel ($dateText): Temperatura: ${temperature}°C, Opis: $description"
-//            binding.temperatureForecastTextView.append("\n$forecastText")
-
-        }
 
         // Zapisz dane prognozy do SharedPreferences
         val sharedPreferences = activity?.getSharedPreferences("CityWeatherPrefs", Context.MODE_PRIVATE)

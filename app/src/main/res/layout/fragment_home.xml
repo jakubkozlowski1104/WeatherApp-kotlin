@@ -73,10 +73,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="70dp"
                 android:gravity="center_horizontal"
+                android:text="254oF"
                 android:textColor="@color/white"
-                android:text="15oC" />
+                android:textSize="60dp" />
 
             <TextView
                 android:id="@+id/descriptionTextView"
