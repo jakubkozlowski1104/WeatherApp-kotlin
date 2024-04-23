@@ -167,6 +167,7 @@ class Home : Fragment() {
 
         val iconResource = weatherIconsMap[description] ?: R.drawable.sunny
         binding.weatherIconImageView.setImageResource(iconResource)
+        binding.weatherIconImageView.setImageResource(iconResource)
 
         binding.timeTextView.text = localDateTime
     }
