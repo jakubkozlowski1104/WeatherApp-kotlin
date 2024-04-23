@@ -44,4 +44,49 @@
         android:padding="16dp"
         android:layout_marginBottom="10dp" />
 
+    <TextView
+        android:id="@+id/pressureTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:textSize="20dp"
+        android:layout_gravity="center"
+        android:padding="16dp"
+        android:text="TextView"
+        android:layout_marginBottom="50dp"/>
+
+    <TextView
+        android:id="@+id/humidityTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:textSize="20dp"
+        android:layout_gravity="center"
+        android:padding="16dp"
+        android:text="TextView"
+        android:layout_marginBottom="-90dp"/>
+
+    <TextView
+        android:id="@+id/sunriseTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:textSize="20dp"
+        android:layout_gravity="center"
+        android:padding="16dp"
+        android:text="TextView"
+        android:layout_marginBottom="-50dp"/>
+
+    <TextView
+        android:id="@+id/sunsetTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:textSize="20dp"
+        android:layout_gravity="center"
+        android:padding="16dp"
+        android:text="TextView"
+        android:layout_marginBottom="150dp"/>
+
+
 </FrameLayout>
