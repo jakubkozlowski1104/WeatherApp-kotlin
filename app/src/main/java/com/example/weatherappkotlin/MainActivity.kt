@@ -20,11 +20,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var networkConnection: NetworkConnection
     private lateinit var networkConnectionObserver: Observer<Boolean>
-    var dataFetched = false
+    var dataFetched = true
+    // Zapisanie wartości dataFetched do SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val sharedPreferencesFetch = getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
+        sharedPreferencesFetch.edit().putBoolean("dataFetched", dataFetched).apply()
 
         networkConnection = NetworkConnection(this)
         networkConnectionObserver = Observer { isConnected ->

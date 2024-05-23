@@ -21,7 +21,6 @@ import java.util.*
 class Home : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var networkConnection: NetworkConnection
-    private var dataFetched = false
     private var handler: Handler? = null
     private val refreshInterval = 5000L // 5 seconds
 
@@ -48,11 +47,18 @@ class Home : Fragment() {
                 binding.networkStatusTextView.visibility = View.GONE
                 binding.btnRefreshData.visibility = View.VISIBLE
 
-                // Sprawdź, czy dane nie zostały już pobrane w MainActivity
-                if ((requireActivity() as? MainActivity)?.dataFetched == true && cityName.isNotEmpty()) {
+                val sharedPreferencesFetch = requireActivity().getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
+                var dataFetched = sharedPreferencesFetch.getBoolean("dataFetched", false)
+
+                Log.d("HomeFragmentx", "Wartość dataFetched po instrukcji: $dataFetched")
+                if (dataFetched == true) {
+                    Log.d("HomeFragmentx", "wchodzi")
+
                     fetchWeatherData(cityName)
+                    dataFetched = false;
+                    sharedPreferencesFetch.edit().putBoolean("dataFetched", dataFetched).apply()
                 } else {
-                    (requireActivity() as? MainActivity)?.dataFetched = true
+                    Log.d("HomeFragmentx", "nie wchodzi")
                     readWeatherDataFromSharedPreferences(cityName)
                 }
 
@@ -65,6 +71,7 @@ class Home : Fragment() {
                 }
             } else {
                 Log.d("HomeFragmentNet", "No internet connection")
+                readWeatherDataFromSharedPreferences(cityName)
                 binding.networkStatusTextView.visibility = View.VISIBLE
                 binding.btnRefreshData.visibility = View.GONE
             }
@@ -108,7 +115,6 @@ class Home : Fragment() {
                         }
                     } else {
                         readWeatherDataFromSharedPreferences(cityName)
-
                         Log.d("HomeFragmentNet", "No internet connection")
                     }
                 })
@@ -118,6 +124,7 @@ class Home : Fragment() {
             }
         }, refreshInterval)
     }
+
     private fun isCityInFavorites(cityName: String): Boolean {
         val sharedPreferences = activity?.getSharedPreferences("FavoriteCitiesPrefs", Context.MODE_PRIVATE)
         val favoriteCities = sharedPreferences?.getStringSet("favoriteCities", emptySet()) ?: emptySet()
@@ -185,9 +192,6 @@ class Home : Fragment() {
                     requireActivity().runOnUiThread {
                         displayWeatherData(cityName, temperature, tempMin, tempMax, description, lon, lat, localDateTime)
                     }
-
-                    // Set dataFetched flag to true after fetching data
-                    dataFetched = true
                 } else {
                     requireActivity().runOnUiThread {
                         Log.d("HomeFragment", "Błąd pobierania danych: ${response.message}")
