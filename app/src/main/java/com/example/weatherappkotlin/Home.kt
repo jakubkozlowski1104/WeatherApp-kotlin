@@ -2,6 +2,8 @@ package com.example.weatherappkotlin
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +22,9 @@ import java.util.*
 class Home : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var networkConnection: NetworkConnection
+    private val handler = Handler(Looper.getMainLooper())
+    private lateinit var runnable: Runnable
+    private var isConnected = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +42,7 @@ class Home : Fragment() {
 
         networkConnection = NetworkConnection(requireContext())
         networkConnection.observe(viewLifecycleOwner, Observer { isConnected ->
+            this.isConnected = isConnected
             if (isConnected) {
                 Log.d("HomeFragmentNet", "Internet connected")
                 binding.networkStatusTextView.visibility = View.GONE
@@ -74,6 +80,22 @@ class Home : Fragment() {
                 Toast.makeText(context, "Dodano do ulubionych: $cityName", Toast.LENGTH_SHORT).show()
             }
         }
+
+        runnable = object : Runnable {
+            override fun run() {
+                if (isConnected) {
+                    fetchWeatherData(cityName)
+                }
+                handler.postDelayed(this, 10000) // 10 sekund
+            }
+        }
+
+        handler.post(runnable)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        handler.removeCallbacks(runnable)
     }
 
     private fun isCityInFavorites(cityName: String): Boolean {
