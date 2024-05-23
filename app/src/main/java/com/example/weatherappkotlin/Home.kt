@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.example.weatherappkotlin.databinding.FragmentHomeBinding
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -22,9 +21,9 @@ import java.util.*
 class Home : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var networkConnection: NetworkConnection
-    private val handler = Handler(Looper.getMainLooper())
-    private lateinit var runnable: Runnable
-    private var isConnected = false
+    private var dataFetched = false
+    private var handler: Handler? = null
+    private val refreshInterval = 5000L // 5 seconds
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,21 +36,29 @@ class Home : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // reszta kodu
+
         val sharedPreferences = activity?.getSharedPreferences("CityWeatherPrefs", Context.MODE_PRIVATE)
         val cityName = sharedPreferences?.getString("cityName", "") ?: ""
 
         networkConnection = NetworkConnection(requireContext())
-        networkConnection.observe(viewLifecycleOwner, Observer { isConnected ->
-            this.isConnected = isConnected
+        networkConnection.observe(viewLifecycleOwner, { isConnected ->
             if (isConnected) {
                 Log.d("HomeFragmentNet", "Internet connected")
                 binding.networkStatusTextView.visibility = View.GONE
                 binding.btnRefreshData.visibility = View.VISIBLE
-                if (cityName.isNotEmpty()) {
+
+                // Sprawdź, czy dane nie zostały już pobrane w MainActivity
+                if ((requireActivity() as? MainActivity)?.dataFetched == true && cityName.isNotEmpty()) {
                     fetchWeatherData(cityName)
+                } else {
+                    (requireActivity() as? MainActivity)?.dataFetched = true
+                    readWeatherDataFromSharedPreferences(cityName)
                 }
+
                 binding.btnRefreshData.setOnClickListener {
                     if (cityName.isNotEmpty()) {
+                        // Pobierz dane tylko wtedy, gdy są połączenie internetowe i użytkownik kliknął przycisk odświeżania
                         fetchWeatherData(cityName)
                         Toast.makeText(context, "Dane zostały odświeżone ", Toast.LENGTH_SHORT).show()
                     }
@@ -60,10 +67,15 @@ class Home : Fragment() {
                 Log.d("HomeFragmentNet", "No internet connection")
                 binding.networkStatusTextView.visibility = View.VISIBLE
                 binding.btnRefreshData.visibility = View.GONE
-
-                readWeatherDataFromSharedPreferences(cityName)
             }
         })
+
+        handler = Handler(Looper.getMainLooper())
+
+        // Start data refresh
+        startDataRefresh()
+
+
 
         if (isCityInFavorites(cityName)) {
             binding.btnAddToFavourite.text = "Twoje Ulubione"
@@ -80,28 +92,41 @@ class Home : Fragment() {
                 Toast.makeText(context, "Dodano do ulubionych: $cityName", Toast.LENGTH_SHORT).show()
             }
         }
+    }
 
-        runnable = object : Runnable {
+    private fun startDataRefresh() {
+        handler?.postDelayed(object : Runnable {
             override fun run() {
-                if (isConnected) {
-                    fetchWeatherData(cityName)
-                }
-                handler.postDelayed(this, 10000) // 10 sekund
+                val sharedPreferences = activity?.getSharedPreferences("CityWeatherPrefs", Context.MODE_PRIVATE)
+                val cityName = sharedPreferences?.getString("cityName", "") ?: ""
+
+                networkConnection = NetworkConnection(requireContext())
+                networkConnection.observe(viewLifecycleOwner, { isConnected ->
+                    if (isConnected) {
+                        if (cityName.isNotEmpty()) {
+                            fetchWeatherData(cityName)
+                        }
+                    } else {
+                        readWeatherDataFromSharedPreferences(cityName)
+
+                        Log.d("HomeFragmentNet", "No internet connection")
+                    }
+                })
+
+                // Start refreshing again after 5 seconds
+                handler?.postDelayed(this, refreshInterval)
             }
-        }
-
-        handler.post(runnable)
+        }, refreshInterval)
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        handler.removeCallbacks(runnable)
-    }
-
     private fun isCityInFavorites(cityName: String): Boolean {
         val sharedPreferences = activity?.getSharedPreferences("FavoriteCitiesPrefs", Context.MODE_PRIVATE)
         val favoriteCities = sharedPreferences?.getStringSet("favoriteCities", emptySet()) ?: emptySet()
         return favoriteCities.contains(cityName)
+    }
+
+    override fun onDestroyView() {
+        handler?.removeCallbacksAndMessages(null)
+        super.onDestroyView()
     }
 
     private fun fetchWeatherData(cityName: String) {
@@ -160,6 +185,9 @@ class Home : Fragment() {
                     requireActivity().runOnUiThread {
                         displayWeatherData(cityName, temperature, tempMin, tempMax, description, lon, lat, localDateTime)
                     }
+
+                    // Set dataFetched flag to true after fetching data
+                    dataFetched = true
                 } else {
                     requireActivity().runOnUiThread {
                         Log.d("HomeFragment", "Błąd pobierania danych: ${response.message}")
