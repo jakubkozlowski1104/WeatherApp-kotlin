@@ -55,7 +55,6 @@ class Wind : Fragment() {
                 binding.networkStatusTextView.visibility = View.VISIBLE
                 binding.refreshData.visibility = View.GONE
 
-                // Read weather data from SharedPreferences when no internet connection
                 readWeatherDataFromSharedPreferences(cityName)
             }
         })

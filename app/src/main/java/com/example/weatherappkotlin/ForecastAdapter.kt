@@ -28,11 +28,9 @@ class ForecastAdapter(private var forecastList: List<ForecastItem>) :
 
         holder.dateTextView.text = forecastItem.date
 
-        // Pobierz preferencje jednostki temperatury
         val sharedPreferences = holder.itemView.context.getSharedPreferences("TemperatureUnitPrefs", Context.MODE_PRIVATE)
         val isFahrenheit = sharedPreferences?.getBoolean("temperatureUnit", false) ?: false
 
-        // Formatuj temperaturę zgodnie z preferencją
         val formattedTemperature = if (isFahrenheit) {
             "${(forecastItem.temperature.toInt())}K"
         } else {
@@ -40,7 +38,6 @@ class ForecastAdapter(private var forecastList: List<ForecastItem>) :
         }
         holder.temperatureTextView.text = formattedTemperature
 
-        // Ustaw ikonę pogody na podstawie opisu
         val iconResource = getWeatherIconResource(forecastItem.description)
         holder.weatherIconImageView.setImageResource(iconResource)
     }
@@ -49,13 +46,11 @@ class ForecastAdapter(private var forecastList: List<ForecastItem>) :
         return forecastList.size
     }
 
-    // Metoda do ustawiania nowych danych w adapterze
     fun setData(newForecastList: List<ForecastItem>) {
         forecastList = newForecastList
-        notifyDataSetChanged() // Powiadom RecyclerView o zmianach w danych
+        notifyDataSetChanged()
     }
 
-    // Metoda do mapowania opisu pogody na odpowiednią ikonę
     private fun getWeatherIconResource(description: String): Int {
         val lowercaseDescription = description.toLowerCase(Locale.getDefault())
         return weatherIconsMap[lowercaseDescription] ?: R.drawable.sunny

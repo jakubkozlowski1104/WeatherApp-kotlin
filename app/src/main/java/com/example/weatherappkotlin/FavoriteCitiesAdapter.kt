@@ -40,14 +40,12 @@ class FavoriteCitiesAdapter(
         fun bind(cityName: String) {
             cityNameTextView.text = cityName
             deleteButton.setOnClickListener {
-                // Usuwamy miasto z listy ulubionych w SharedPreferences
                 val editor = sharedPreferences.edit()
                 val citySet = sharedPreferences.getStringSet("favoriteCities", HashSet())?.toMutableSet()
                 citySet?.remove(cityName)
                 editor.putStringSet("favoriteCities", citySet)
                 editor.apply()
 
-                // Usuwamy miasto z listy wyświetlanej w RecyclerView
                 citiesList.remove(cityName)
                 notifyDataSetChanged()
             }
@@ -55,12 +53,10 @@ class FavoriteCitiesAdapter(
             seeMoreButton.setOnClickListener {
                 val sharedPreferences = itemView.context.getSharedPreferences("CityWeatherPrefs", Context.MODE_PRIVATE)
 
-                // Zapisz nazwę miasta do SharedPreferences
                 val editor = sharedPreferences.edit()
                 editor.putString("cityName", cityName)
                 editor.apply()
 
-                // Uruchomienie CityWeatherActivity z przekazaniem nazwy miasta
                 val intent = Intent(itemView.context, CityWeatherActivity::class.java)
                 intent.putExtra("cityName", cityName)
                 itemView.context.startActivity(intent)

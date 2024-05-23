@@ -23,7 +23,6 @@ class FavouritesCitiesActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences("FavoriteCitiesPrefs", Context.MODE_PRIVATE)
         val favoriteCitiesSet: Set<String>? = sharedPreferences.getStringSet("favoriteCities", HashSet())
 
-        // Konwertujemy Set<String> na MutableList<String> dla adaptera RecyclerView
         favoriteCitiesList = favoriteCitiesSet?.toMutableList() ?: mutableListOf()
 
         setupRecyclerView()

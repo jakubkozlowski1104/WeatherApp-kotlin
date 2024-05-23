@@ -36,7 +36,7 @@ class Forecast : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        forecastAdapter = ForecastAdapter(emptyList()) // Początkowo adapter bez danych
+        forecastAdapter = ForecastAdapter(emptyList())
 
         binding.forecastRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -95,11 +95,9 @@ class Forecast : Fragment() {
                             var temperature = dailyForecast.getAsJsonObject("main").get("temp").asDouble
 
                             if (!isFahrenheit) {
-                                // Konwersja z Kelwinów na stopnie Celsjusza
                                 temperature -= 273.15
                             }
 
-                            // Konwersja temperatury do stopni Fahrenheit, jeśli preferencja jest ustawiona
                             val formattedTemperature = if (isFahrenheit) {
                                 "${(temperature * 9 / 5) + 32}°F"
                             } else {
@@ -133,8 +131,6 @@ class Forecast : Fragment() {
         val weatherArray = dailyForecast.getAsJsonArray("weather")
         val weather = weatherArray.get(0).asJsonObject
 
-        // Zaokrąglenie temperatury do najbliższej liczby całkowitej
-
         val sharedPreferencesUnits = activity?.getSharedPreferences("TemperatureUnitPrefs", Context.MODE_PRIVATE)
         val isFahrenheit = sharedPreferencesUnits?.getBoolean("temperatureUnit", false) ?: false
         Log.d("unit", "is faren: $isFahrenheit")
@@ -148,11 +144,6 @@ class Forecast : Fragment() {
         val description = weather.get("description").asString
         val dateText = formatDate(dailyForecast.get("dt").asLong)
 
-        // Obliczanie poprawnego dnia tygodnia na podstawie daty z dt_txt
-        val dtTxt = dailyForecast.get("dt_txt").asString
-        val dayOfWeekLabel = getDayOfWeekLabelFromDate(dtTxt)
-
-        // Zapisz dane prognozy do SharedPreferences
         val sharedPreferences = activity?.getSharedPreferences("CityWeatherPrefs", Context.MODE_PRIVATE)
         val cityName = sharedPreferences?.getString("cityName", "") ?: ""
         saveWeatherDataToSharedPreferences(cityName, temperature, description, dateText)
@@ -170,10 +161,8 @@ class Forecast : Fragment() {
         return daysOfWeek[dayOfWeek - 1]
     }
 
-    // Rozszerzenie do formatowania liczby zmiennoprzecinkowej do określonej liczby miejsc po przecinku
     private fun Double.format(digits: Int) = "%.${digits}f".format(this)
 
-    // Funkcja pomocnicza do formatowania daty z timestampa
     private fun formatDate(timestamp: Long): String {
         val dateFormat = SimpleDateFormat("dd.MM", Locale.getDefault())
         val date = Date(timestamp * 1000)
@@ -220,8 +209,6 @@ class Forecast : Fragment() {
 
         Log.e("ForecastShared", "Zapisano")
 
-
-        // Pobierz dane prognozy zaktualizowane w SharedPreferences
         readWeatherDataFromSharedPreferences(cityName)
     }
 
@@ -247,7 +234,6 @@ class Forecast : Fragment() {
 
                     Log.e("ForecastShared", "Odczytano: $temperature, $description, $dateText")
 
-
                     val forecastItem = ForecastItem(dateText, temperature, description)
                     filteredForecastItems.add(forecastItem)
                 } catch (e: JsonSyntaxException) {
@@ -256,7 +242,6 @@ class Forecast : Fragment() {
             }
         }
 
-        // Zaktualizuj dane w adapterze
         forecastAdapter.setData(filteredForecastItems)
         Log.e("ForecastShared", "SET DATA")
     }

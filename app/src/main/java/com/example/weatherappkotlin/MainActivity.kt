@@ -64,13 +64,12 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnFavourites.setOnClickListener {
             val intent = Intent(this@MainActivity, FavouritesCitiesActivity::class.java)
-            startActivity(intent) // Uruchomienie FavouritesCitiesActivity
+            startActivity(intent)
         }
     }
 
     override fun onResume() {
         super.onResume()
-        // Ponownie zarejestruj obserwatora dla networkConnection w onResume()
         networkConnection.observe(this, networkConnectionObserver)
     }
 
@@ -106,7 +105,6 @@ class MainActivity : AppCompatActivity() {
 
                         val cityNameShared = sharedPreferences.getString("cityName", "Nie znaleziono")
 
-                        // Wyświetlenie nazwy miasta w logach
                         Log.d("MainActivityCheck", "Odczytano nazwę miasta: $cityNameShared")
 
                         val intent = Intent(this@MainActivity, CityWeatherActivity::class.java)
