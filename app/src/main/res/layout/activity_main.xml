@@ -1,96 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
     tools:context=".MainActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cityLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.7"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="1">
+    <TextView
+        android:id="@+id/textInternetStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Internet: No Connection"
+        android:textSize="20sp"
+        android:layout_marginTop="56dp"/>
 
-        <EditText
-            android:id="@+id/inpCityName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Enter city name"
-            android:inputType="text"
-            app:layout_constraintBottom_toTopOf="@id/btnFind"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.497"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.5" />
+    <ToggleButton
+        android:id="@+id/toggleTemperatureUnit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:checked="false"
+        android:textOff="°C"
+        android:textOn="K" />
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-5dp"
+        android:text="change units"
+        android:gravity="center"/>
 
-        <Button
-            android:id="@+id/btnFind"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Find"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.501"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/inpCityName"
-            app:layout_constraintVertical_bias="0.5" />
+    <EditText
+        android:id="@+id/inpCityName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:layout_marginTop="50dp"
+        android:hint="Enter city name"
+        android:inputType="text" />
 
-        <TextView
-            android:id="@+id/textInternetStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Internet: No Connection"
-            android:textSize="20dp"
-            app:layout_constraintBottom_toTopOf="@id/btnFind"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.81"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.114" />
+    <Button
+        android:id="@+id/btnFind"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="Find" />
 
-        <ToggleButton
-            android:id="@+id/toggleTemperatureUnit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|center_vertical"
-            android:checked="false"
-            android:paddingTop="16dp"
-            android:paddingEnd="16dp"
-            android:textOff="°C"
-            android:textOn="K"
-            tools:ignore="MissingConstraints"
-            tools:layout_editor_absoluteX="47dp"
-            tools:layout_editor_absoluteY="32dp" />
+    <Button
+        android:id="@+id/btnFavourites"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="46dp"
+        android:text="Go to favorites" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/secondLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.3"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cityLayout"
-        app:layout_constraintWidth_percent="1">
-
-        <Button
-            android:id="@+id/btnFavourites"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Go to favorites"
-            tools:layout_editor_absoluteX="135dp"
-            tools:layout_editor_absoluteY="16dp" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
